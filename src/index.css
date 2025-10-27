@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  @apply h-full bg-slate-100 text-slate-900;
+}
+
+body {
+  @apply antialiased;
+}
+
+input,
+select,
+button,
+textarea {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100;
+}
