@@ -9,19 +9,22 @@ import { TicketCard } from './TicketCard';
 
 type FeatureBoardProps = {
   featureId: string;
+  collapsed?: boolean;
+  onToggle?: (featureId: string) => void;
 };
 
 const COLUMN_MIN_WIDTH = 220;
 const COLUMN_GAP = 16;
 
-export function FeatureBoard({ featureId }: FeatureBoardProps) {
-  const { features, developers, sprints, tickets, currentSprintId } = usePiStore(
+export function FeatureBoard({ featureId, collapsed = false, onToggle }: FeatureBoardProps) {
+  const { features, developers, sprints, tickets, currentSprintId, updateFeature } = usePiStore(
     useShallow((state) => ({
       features: state.features,
       developers: state.developers,
       sprints: state.sprints,
       tickets: state.tickets,
       currentSprintId: state.currentSprintId,
+      updateFeature: state.updateFeature,
     })),
   );
 
@@ -29,6 +32,15 @@ export function FeatureBoard({ featureId }: FeatureBoardProps) {
     () => features.find((item) => item.id === featureId),
     [features, featureId],
   );
+
+  const handleRenameFeature = () => {
+    if (!feature) return;
+    const nextName = window.prompt('Rename feature', feature.name);
+    if (!nextName) return;
+    const trimmed = nextName.trim();
+    if (!trimmed || trimmed === feature.name) return;
+    updateFeature(feature.id, { name: trimmed });
+  };
 
   const orderedSprints = useMemo(
     () => [...sprints].sort((a, b) => a.order - b.order),
@@ -85,20 +97,50 @@ export function FeatureBoard({ featureId }: FeatureBoardProps) {
 
   if (!feature) return null;
 
+  const canToggle = Boolean(onToggle);
+
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
-        <div>
-          <h3 className="text-lg font-semibold text-slate-900">{feature.name}</h3>
-          <p className="text-sm text-slate-500">
-            Drag tickets between sprints to rebalance this feature plan
-          </p>
+        <button
+          type="button"
+          onClick={() => onToggle?.(featureId)}
+          className="flex flex-1 items-start gap-3 text-left disabled:cursor-default"
+          aria-expanded={canToggle ? !collapsed : undefined}
+          disabled={!canToggle}
+        >
+          <span className="mt-0.5 text-sm text-slate-400">
+            {collapsed ? '▶' : '▼'}
+            <span className="sr-only">
+              {collapsed ? 'Expand feature' : 'Collapse feature'}
+            </span>
+          </span>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">{feature.name}</h3>
+            <p className="text-sm text-slate-500">
+              Drag tickets between sprints to rebalance this feature plan
+            </p>
+          </div>
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleRenameFeature();
+            }}
+            className="rounded-md border border-transparent p-1 text-xs font-medium text-slate-600 hover:border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          >
+            ✎
+            <span className="sr-only">Rename feature</span>
+          </button>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+            {featureTickets.length} ticket{featureTickets.length === 1 ? '' : 's'}
+          </span>
         </div>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
-          {featureTickets.length} ticket{featureTickets.length === 1 ? '' : 's'}
-        </span>
       </header>
-      <div className="overflow-x-auto">
+      {!collapsed ? (
+        <div className="overflow-x-auto">
         <div className="min-w-max">
           <div className="grid grid-cols-[12rem,1fr] border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div className="px-5 py-3 font-semibold">Developer</div>
@@ -196,7 +238,8 @@ export function FeatureBoard({ featureId }: FeatureBoardProps) {
             );
           })}
         </div>
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -19,11 +19,21 @@ export function FeatureManagerModal({ open, onClose }: FeatureManagerModalProps)
   );
 
   const [draftName, setDraftName] = useState('');
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const sortedFeatures = useMemo(
     () => [...features].sort((a, b) => a.name.localeCompare(b.name)),
     [features],
   );
+
+  useEffect(() => {
+    setDrafts(() =>
+      sortedFeatures.reduce<Record<string, string>>((acc, feature) => {
+        acc[feature.id] = feature.name;
+        return acc;
+      }, {}),
+    );
+  }, [sortedFeatures]);
 
   if (!open) return null;
 
@@ -39,8 +49,16 @@ export function FeatureManagerModal({ open, onClose }: FeatureManagerModalProps)
       role="dialog"
       aria-modal="true"
       aria-labelledby="feature-manager-title"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="w-full max-w-xl rounded-lg bg-white shadow-xl">
+      <div
+        className="w-full max-w-3xl rounded-lg bg-white shadow-xl"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2 id="feature-manager-title" className="text-lg font-semibold text-slate-900">
             Manage Features
@@ -69,10 +87,28 @@ export function FeatureManagerModal({ open, onClose }: FeatureManagerModalProps)
                   className="flex items-center gap-3 rounded-md border border-slate-200 px-3 py-2"
                 >
                   <input
-                    defaultValue={feature.name}
-                    onBlur={(event) =>
-                      updateFeature(feature.id, { name: event.target.value })
+                    value={drafts[feature.id] ?? feature.name}
+                    onChange={(event) =>
+                      setDrafts((prev) => ({
+                        ...prev,
+                        [feature.id]: event.target.value,
+                      }))
                     }
+                    onBlur={(event) => {
+                      const nextName = event.target.value.trim();
+                      if (!nextName || nextName === feature.name) {
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [feature.id]: feature.name,
+                        }));
+                        return;
+                      }
+                      updateFeature(feature.id, { name: nextName });
+                      setDrafts((prev) => ({
+                        ...prev,
+                        [feature.id]: nextName,
+                      }));
+                    }}
                     className="flex-1 rounded-md border border-slate-300 px-2 py-1 text-sm"
                   />
                   <button

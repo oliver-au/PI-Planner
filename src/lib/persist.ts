@@ -13,6 +13,7 @@ type PersistedTicket = Omit<Ticket, 'createdAt' | 'sprintIds' | 'dependencies'> 
   sprintId?: string;
   sprintIds?: string[];
   dependencies?: string[];
+  jiraUrl?: string;
 };
 
 type PersistShape = {
@@ -140,6 +141,7 @@ function migrateTicket(ticket: PersistedTicket, index: number): Ticket {
     createdAt: ticket.createdAt ?? baseCreatedAt,
     sprintIds: sprintTrail,
     dependencies: ticket.dependencies ?? [],
+    jiraUrl: ticket.jiraUrl,
   };
 }
 
@@ -180,6 +182,7 @@ function buildSeedData(): PlannerData {
       featureId: 'F1',
       sprintIds: ['S1'],
       dependencies: [],
+      jiraUrl: 'https://jira.example.com/browse/KEY-11',
     },
     {
       id: 't-key-2',
@@ -190,6 +193,7 @@ function buildSeedData(): PlannerData {
       featureId: 'F1',
       sprintIds: ['S2'],
       dependencies: ['t-key-11'],
+      jiraUrl: 'https://jira.example.com/browse/KEY-2',
     },
     {
       id: 't-key-13',
@@ -200,6 +204,7 @@ function buildSeedData(): PlannerData {
       featureId: 'F1',
       sprintIds: ['S3'],
       dependencies: ['t-key-2'],
+      jiraUrl: 'https://jira.example.com/browse/KEY-13',
     },
     {
       id: 't-key-5',

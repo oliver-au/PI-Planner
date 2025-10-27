@@ -160,12 +160,13 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
     sprintTrail: normalizeSprintTrail(ticket.sprintIds),
     dependencyIds: ticket.dependencies,
     dependencyQuery: '',
+    jiraUrl: ticket.jiraUrl ?? '',
   });
   const dependencyInputRef = useRef<HTMLInputElement | null>(null);
   const [suggestionRect, setSuggestionRect] = useState<{ left: number; top: number; width: number } | null>(null);
   const [dependencyFocused, setDependencyFocused] = useState(false);
 
-  const handleFieldChange = (key: 'name' | 'storyPoints' | 'developerId' | 'featureId', value: string) => {
+  const handleFieldChange = (key: 'name' | 'storyPoints' | 'developerId' | 'featureId' | 'jiraUrl', value: string) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
       if (key === 'featureId') {
@@ -208,6 +209,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       sprintTrail: normalizeSprintTrail(ticket.sprintIds),
       dependencyIds: ticket.dependencies,
       dependencyQuery: '',
+      jiraUrl: ticket.jiraUrl ?? '',
     });
   }, [
     ticket.id,
@@ -246,6 +248,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
     if (!form.name.trim() || Number.isNaN(storyPoints) || storyPoints <= 0) {
       return;
     }
+    const trimmedUrl = form.jiraUrl.trim();
     onSave({
       name: form.name.trim(),
       storyPoints,
@@ -253,6 +256,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       featureId: form.featureId,
       sprintIds: form.sprintTrail,
       dependencies: form.dependencyIds,
+      jiraUrl: trimmedUrl ? trimmedUrl : undefined,
     });
   };
 
@@ -364,7 +368,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       }}
     >
       <div
-        className="flex w-full max-w-lg flex-col rounded-lg bg-white shadow-xl"
+        className="flex w-full max-w-lg flex-col rounded-lg bg-white shadow-xl max-h-[80vh]"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
@@ -399,6 +403,15 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
                 onChange={(event) => handleFieldChange('storyPoints', event.target.value)}
                 className="rounded-md border border-slate-300 px-3 py-2"
                 inputMode="numeric"
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm text-slate-700 md:col-span-2">
+              Jira issue link
+              <input
+                value={form.jiraUrl}
+                onChange={(event) => handleFieldChange('jiraUrl', event.target.value)}
+                className="rounded-md border border-slate-300 px-3 py-2"
+                placeholder="https://jira.example.com/browse/ART-123"
               />
             </label>
             <div className="flex flex-col gap-2 text-sm text-slate-700">

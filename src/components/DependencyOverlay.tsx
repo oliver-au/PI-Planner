@@ -146,24 +146,86 @@ export function DependencyOverlay({ containerRef }: DependencyOverlayProps) {
         );
         if (startSprintIdx === -1 || endSprintIdx === -1) return null;
 
-        const startX =
-          startRect.right -
-          containerRect.left +
-          (endSprintIdx < startSprintIdx ? -12 : 0);
-        const startY =
+        const startCenterX =
+          startRect.left - containerRect.left + startRect.width / 2;
+        const startCenterY =
           startRect.top - containerRect.top + startRect.height / 2;
-        const endX = endRect.left - containerRect.left - 8;
-        const endY = endRect.top - containerRect.top + endRect.height / 2;
-        return { from, to, startX, startY, endX, endY };
+        const endCenterX =
+          endRect.left - containerRect.left + endRect.width / 2;
+        const endCenterY =
+          endRect.top - containerRect.top + endRect.height / 2;
+
+        const alignedVertically =
+          Math.abs(startCenterY - endCenterY) < 16;
+
+        if (alignedVertically) {
+          const direction =
+            endCenterX >= startCenterX ? 1 : -1;
+          const horizontalOffset = 18;
+          const startEdgeX =
+            direction > 0
+              ? startRect.right - containerRect.left
+              : startRect.left - containerRect.left;
+          const endEdgeX =
+            direction > 0
+              ? endRect.left - containerRect.left
+              : endRect.right - containerRect.left;
+          const startExitX = startEdgeX + direction * horizontalOffset;
+          const endEntryX = endEdgeX - direction * horizontalOffset;
+          const midY =
+            (startCenterY + endCenterY) / 2;
+          return {
+            from,
+            to,
+            segments: [
+              { x: startEdgeX, y: startCenterY },
+              { x: startExitX, y: startCenterY },
+              { x: startExitX, y: midY },
+              { x: endEntryX, y: midY },
+              { x: endEntryX, y: endCenterY },
+              { x: endEdgeX, y: endCenterY },
+            ],
+          };
+        }
+
+        const verticalDirection =
+          endCenterY >= startCenterY ? 1 : -1;
+        const verticalOffset = 18;
+        const startEdgeY =
+          verticalDirection > 0
+            ? startRect.bottom - containerRect.top
+            : startRect.top - containerRect.top;
+        const endEdgeY =
+          verticalDirection > 0
+            ? endRect.top - containerRect.top
+            : endRect.bottom - containerRect.top;
+
+        const startExitY =
+          startEdgeY + verticalDirection * verticalOffset;
+        const endEntryY =
+          endEdgeY - verticalDirection * verticalOffset;
+
+        const midX =
+          (startCenterX + endCenterX) / 2;
+
+        return {
+          from,
+          to,
+          segments: [
+            { x: startCenterX, y: startEdgeY },
+            { x: startCenterX, y: startExitY },
+            { x: midX, y: startExitY },
+            { x: midX, y: endEntryY },
+            { x: endCenterX, y: endEntryY },
+            { x: endCenterX, y: endEdgeY },
+          ],
+        };
       })
       .filter(
         (segment): segment is {
           from: string;
           to: string;
-          startX: number;
-          startY: number;
-          endX: number;
-          endY: number;
+          segments: { x: number; y: number }[];
         } => segment !== null,
       );
   }, [containerRect, positions, show, tickets, orderedSprintIds]);
@@ -172,7 +234,7 @@ export function DependencyOverlay({ containerRef }: DependencyOverlayProps) {
 
   return (
     <svg
-      className="pointer-events-none absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 z-[60] h-full w-full"
       viewBox={`0 0 ${containerRect.width} ${containerRect.height}`}
       role="presentation"
       preserveAspectRatio="none"
@@ -187,23 +249,30 @@ export function DependencyOverlay({ containerRef }: DependencyOverlayProps) {
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0ea5e9" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#A5ADBA" />
         </marker>
+        <filter id="arrow-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="#E5E8EF" floodOpacity="0.9" />
+        </filter>
       </defs>
       {paths.map((path) => {
-        const horizontalOffset = Math.max(48, Math.abs(path.endX - path.startX) / 3);
-        const control1X = path.startX + (path.endX >= path.startX ? horizontalOffset : -horizontalOffset);
-        const control2X = path.endX - (path.endX >= path.startX ? horizontalOffset : -horizontalOffset);
-        const d = `M ${path.startX} ${path.startY} C ${control1X} ${path.startY}, ${control2X} ${path.endY}, ${path.endX} ${path.endY}`;
+        if (path.segments.length < 2) return null;
+        const segments = path.segments
+          .map((point, index) =>
+            `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`,
+          )
+          .join(' ');
         return (
           <path
             key={`${path.from}-${path.to}`}
-            d={d}
-            stroke="#0ea5e9"
+            d={segments}
+            stroke="#A5ADBA"
             strokeWidth="1.6"
+            strokeLinecap="round"
             fill="none"
             markerEnd="url(#arrow)"
-            opacity="0.8"
+            opacity="0.95"
+            filter="url(#arrow-glow)"
           />
         );
       })}

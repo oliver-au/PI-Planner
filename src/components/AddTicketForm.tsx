@@ -11,6 +11,7 @@ type FormState = {
   featureId: string;
   developerId: string;
   sprintId: string;
+  jiraUrl: string;
 };
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
@@ -35,13 +36,14 @@ export function AddTicketForm() {
     () => ({
       key: 'ART-',
       name: '',
-      storyPoints: '3',
+      storyPoints: '5',
       featureId: features[0]?.id ?? '',
       developerId:
         developers.find((dev) => dev.id === UNASSIGNED_DEVELOPER_ID)?.id ??
         developers[0]?.id ??
         UNASSIGNED_DEVELOPER_ID,
       sprintId: currentSprintId ?? BACKLOG_COLUMN_ID,
+      jiraUrl: '',
     }),
     [developers, features, currentSprintId],
   );
@@ -62,6 +64,7 @@ export function AddTicketForm() {
     const trimmedKey = form.key.trim().toUpperCase();
     const trimmedName = form.name.trim();
     const storyPoints = Number.parseInt(form.storyPoints, 10);
+    const trimmedUrl = form.jiraUrl.trim();
 
     const nextErrors: FormErrors = {};
     if (!trimmedKey) nextErrors.key = 'Issue key is required.';
@@ -71,6 +74,14 @@ export function AddTicketForm() {
     }
     if (!form.featureId) nextErrors.featureId = 'Feature is required.';
     if (!form.sprintId) nextErrors.sprintId = 'Sprint is required.';
+    if (trimmedUrl) {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(trimmedUrl);
+      } catch {
+        nextErrors.jiraUrl = 'Enter a valid URL (include https://).';
+      }
+    }
 
     setErrors(nextErrors);
 
@@ -86,6 +97,7 @@ export function AddTicketForm() {
       developerId: form.developerId,
       featureId: form.featureId,
       sprintIds: [form.sprintId],
+      jiraUrl: trimmedUrl || undefined,
     });
 
     announce(
@@ -96,6 +108,7 @@ export function AddTicketForm() {
       developerId: form.developerId,
       featureId: form.featureId,
       sprintId: form.sprintId,
+      jiraUrl: '',
     });
   };
 
@@ -148,6 +161,22 @@ export function AddTicketForm() {
           value={form.storyPoints}
           onChange={(event) => handleChange('storyPoints', event.target.value)}
           className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        />
+      </Field>
+
+      <Field
+        label="Jira issue link (optional)"
+        htmlFor="jira-url"
+        error={errors.jiraUrl}
+      >
+        <input
+          id="jira-url"
+          name="jiraUrl"
+          value={form.jiraUrl}
+          onChange={(event) => handleChange('jiraUrl', event.target.value)}
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          placeholder="https://jira.example.com/browse/ART-123"
+          autoComplete="off"
         />
       </Field>
 

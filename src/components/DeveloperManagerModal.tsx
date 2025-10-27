@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNASSIGNED_DEVELOPER_ID } from '../constants';
@@ -25,10 +25,21 @@ export function DeveloperManagerModal({ open, onClose }: DeveloperManagerModalPr
   );
 
   const [draftName, setDraftName] = useState('');
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const filteredDevelopers = useMemo(
     () => developers.filter((dev) => dev.id !== UNASSIGNED_DEVELOPER_ID),
     [developers],
   );
+
+  useEffect(() => {
+    setDrafts((prev) => {
+      const next: Record<string, string> = {};
+      filteredDevelopers.forEach((developer) => {
+        next[developer.id] = prev[developer.id] ?? developer.name;
+      });
+      return next;
+    });
+  }, [filteredDevelopers]);
 
   if (!open) return null;
 
@@ -44,8 +55,16 @@ export function DeveloperManagerModal({ open, onClose }: DeveloperManagerModalPr
       role="dialog"
       aria-modal="true"
       aria-labelledby="developer-manager-title"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
+      <div
+        className="w-full max-w-lg rounded-lg bg-white shadow-xl"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2 id="developer-manager-title" className="text-lg font-semibold text-slate-900">
             Manage Developers
@@ -78,10 +97,18 @@ export function DeveloperManagerModal({ open, onClose }: DeveloperManagerModalPr
                     className="flex items-center gap-3 rounded-md border border-slate-200 px-3 py-2"
                   >
                     <input
-                      defaultValue={developer.name}
-                      onBlur={(event) =>
-                        updateDeveloper(developer.id, { name: event.target.value })
+                      value={drafts[developer.id] ?? developer.name}
+                      onChange={(event) =>
+                        setDrafts((prev) => ({
+                          ...prev,
+                          [developer.id]: event.target.value,
+                        }))
                       }
+                      onBlur={(event) => {
+                        const nextName = event.target.value.trim();
+                        if (!nextName || nextName === developer.name) return;
+                        updateDeveloper(developer.id, { name: nextName });
+                      }}
                       className="flex-1 rounded-md border border-slate-300 px-2 py-1 text-sm"
                     />
                     <button

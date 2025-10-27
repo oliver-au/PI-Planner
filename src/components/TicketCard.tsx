@@ -75,7 +75,6 @@ export function TicketCard({
     return {
       transform: translate,
       marginTop: stackIndex * 6,
-      width: '100%',
     };
   }, [transform, stackIndex]);
 
@@ -189,22 +188,30 @@ export function TicketCard({
     [setNodeRef],
   );
 
+  const { onKeyDown: dndOnKeyDown, ...restListeners } = listeners as typeof listeners & {
+    onKeyDown?: (event: KeyboardEvent<HTMLDivElement> | KeyboardEvent<Element>) => void;
+  };
+
   return (
     <div
       ref={activatorRef}
       style={style}
-      className={`relative flex h-32 w-full cursor-grab flex-col gap-2 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-sm shadow transition focus-visible:ring-2 focus-visible:ring-sky-500 ${
+      className={`relative flex min-h-[8rem] w-[260px] max-w-full cursor-grab flex-col gap-2 overflow-hidden rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-sm shadow transition focus-visible:ring-2 focus-visible:ring-sky-500 min-w-0 ${
         isDragging ? 'z-50 opacity-90' : 'hover:border-slate-300'
       } ${isKeyboardMoving ? 'ring-2 ring-sky-400' : ''}`}
       {...attributes}
-      onKeyDown={handleKeyDown}
+      {...restListeners}
+      onKeyDown={(event) => {
+        dndOnKeyDown?.(event);
+        handleKeyDown(event);
+      }}
       tabIndex={0}
       role="group"
       aria-roledescription="Ticket"
       aria-label={`${ticket.key} in ${sprintId}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2" {...listeners}>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <span className="text-sm font-semibold uppercase tracking-wide text-slate-800">
             {ticket.key}
           </span>
@@ -215,7 +222,34 @@ export function TicketCard({
             </span>
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
+          {ticket.jiraUrl ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                const rawUrl = ticket.jiraUrl?.trim();
+                if (!rawUrl) return;
+                const normalized = /^https?:\/\//i.test(rawUrl)
+                  ? rawUrl
+                  : `https://${rawUrl}`;
+                window.open(normalized, '_blank', 'noopener,noreferrer');
+              }}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              className="rounded-md border border-transparent p-1 text-xs font-medium text-slate-600 hover:border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            >
+              🔗
+              <span className="sr-only">Open Jira issue</span>
+            </button>
+          ) : null}
             <button
               type="button"
               onClick={(event) => {
@@ -247,18 +281,17 @@ export function TicketCard({
         </div>
       </div>
       <p
-        className="flex-1 overflow-hidden text-sm text-slate-700"
+        className="flex-1 overflow-hidden text-sm text-slate-700 break-words"
         title={ticket.name}
-        {...listeners}
       >
         {ticket.name}
       </p>
-      <p className="text-xs text-slate-400" {...listeners}>
+      <p className="text-xs text-slate-400">
         ID: {ticket.id}
       </p>
 
       {ticket.dependencies.length > 0 ? (
-        <p className="text-xs text-slate-500" {...listeners}>
+        <p className="text-xs text-slate-500">
           Depends on{' '}
           {ticket.dependencies
             .map(

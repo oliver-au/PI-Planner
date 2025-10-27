@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { AddTicketForm } from './components/AddTicketForm';
@@ -50,11 +50,26 @@ function App() {
   const [showFeatureModal, setShowFeatureModal] = useState(false);
   const [showDataModal, setShowDataModal] = useState(false);
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
+  const [collapsedFeatures, setCollapsedFeatures] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const orderedSprintList = useMemo(
     () => [...sprints].sort((a, b) => a.order - b.order),
     [sprints],
   );
+
+  const toggleFeatureSection = useCallback((featureId: string) => {
+    setCollapsedFeatures((prev) => {
+      const next = new Set(prev);
+      if (next.has(featureId)) {
+        next.delete(featureId);
+      } else {
+        next.add(featureId);
+      }
+      return next;
+    });
+  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     cancelKeyboardMove();
@@ -224,7 +239,12 @@ function App() {
             <CapacitySummary />
             <div className="space-y-6">
               {features.map((feature) => (
-                <FeatureBoard key={feature.id} featureId={feature.id} />
+                <FeatureBoard
+                  key={feature.id}
+                  featureId={feature.id}
+                  collapsed={collapsedFeatures.has(feature.id)}
+                  onToggle={toggleFeatureSection}
+                />
               ))}
             </div>
             <DependencyOverlay containerRef={containerRef} />

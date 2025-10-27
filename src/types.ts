@@ -25,4 +25,5 @@ export type Ticket = {
   sprintIds: string[];
   dependencies: string[];
   createdAt: number;
+  jiraUrl?: string;
 };

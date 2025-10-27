@@ -209,6 +209,7 @@ export const usePiStore = create<PlannerStore>((set, get) => {
         sprintIds: resolvedSprintIds,
         dependencies: partial.dependencies ?? [],
         developerId,
+        jiraUrl: partial.jiraUrl?.trim() ? partial.jiraUrl.trim() : undefined,
       };
       const nextTickets = [...tickets, ticket];
       commit({ tickets: nextTickets });
@@ -233,6 +234,11 @@ export const usePiStore = create<PlannerStore>((set, get) => {
           ...patch,
           developerId,
           sprintIds,
+          jiraUrl: patch.jiraUrl === undefined
+            ? ticket.jiraUrl
+            : patch.jiraUrl?.trim()
+              ? patch.jiraUrl.trim()
+              : undefined,
         };
       });
       commit({ tickets: nextTickets });
@@ -515,6 +521,7 @@ function normalizeState(data: PlannerData): PlannerData {
       featureId,
       sprintIds: trail.length ? trail : [BACKLOG_COLUMN_ID],
       dependencies,
+      jiraUrl: ticket.jiraUrl?.trim() ? ticket.jiraUrl.trim() : undefined,
     };
   });
 
