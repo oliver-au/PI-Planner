@@ -22,6 +22,7 @@ type PersistShape = {
   features: Feature[];
   tickets: PersistedTicket[];
   currentSprintId?: string | null;
+  ticketBaseUrl?: string | null;
 };
 
 export type PlannerData = {
@@ -30,6 +31,7 @@ export type PlannerData = {
   features: Feature[];
   tickets: Ticket[];
   currentSprintId: string | null;
+  ticketBaseUrl: string | null;
 };
 
 const defaultData = buildSeedData();
@@ -110,6 +112,10 @@ export function loadPlannerState(): PlannerData {
           : UNASSIGNED_DEVELOPER_ID,
       })),
       currentSprintId: currentSprintId ?? null,
+      ticketBaseUrl:
+        typeof parsed.ticketBaseUrl === 'string'
+          ? parsed.ticketBaseUrl
+          : defaultData.ticketBaseUrl,
     };
 
     return data;
@@ -300,6 +306,7 @@ function buildSeedData(): PlannerData {
     features,
     tickets,
     currentSprintId: sprints[0]?.id ?? null,
+    ticketBaseUrl: 'https://jira.example.com/browse/',
   };
 }
 

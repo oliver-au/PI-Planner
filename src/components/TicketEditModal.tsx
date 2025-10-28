@@ -415,7 +415,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
               />
             </label>
             <div className="flex flex-col gap-2 text-sm text-slate-700">
-              <span>Sprint trail</span>
+              <span>Sprint timeline</span>
               <div className="flex flex-wrap gap-2">
                 {sprintOptions.map((optionId) => {
                   const isActive = form.sprintTrail.includes(optionId);

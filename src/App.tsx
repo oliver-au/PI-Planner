@@ -15,6 +15,7 @@ import { currentSprintId } from './lib/calc';
 import type { Ticket } from './types';
 import { BACKLOG_COLUMN_ID } from './constants';
 import { NoticeStack } from './components/NoticeStack';
+import { TicketBaseUrlModal } from './components/TicketBaseUrlModal';
 
 type DropData = {
   featureId: string;
@@ -53,6 +54,7 @@ function App() {
   const [collapsedFeatures, setCollapsedFeatures] = useState<Set<string>>(
     () => new Set(),
   );
+  const [showTicketBaseModal, setShowTicketBaseModal] = useState(false);
 
   const orderedSprintList = useMemo(
     () => [...sprints].sort((a, b) => a.order - b.order),
@@ -199,6 +201,13 @@ function App() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setShowTicketBaseModal(true)}
+                  className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+                >
+                  🌐 Ticket link base
+                </button>
+                <button
+                  type="button"
                   onClick={() => setShowFeatureModal(true)}
                   className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
                 >
@@ -272,6 +281,10 @@ function App() {
       />
       <TicketEditModalHost />
       <DataManagerModal open={showDataModal} onClose={() => setShowDataModal(false)} />
+      <TicketBaseUrlModal
+        open={showTicketBaseModal}
+        onClose={() => setShowTicketBaseModal(false)}
+      />
     </TicketRefProvider>
   );
 }

@@ -41,6 +41,7 @@ export function TicketCard({
     keyboardMove,
     developers,
     sprints,
+    ticketBaseUrl,
   } = usePiStore(
     useShallow((state) => ({
       deleteTicket: state.deleteTicket,
@@ -53,6 +54,7 @@ export function TicketCard({
       keyboardMove: state.keyboardMove,
       developers: state.developers,
       sprints: state.sprints,
+      ticketBaseUrl: state.ticketBaseUrl,
     })),
   );
   const { openEdit } = useTicketEditModal();
@@ -77,6 +79,33 @@ export function TicketCard({
       marginTop: stackIndex * 6,
     };
   }, [transform, stackIndex]);
+
+  const resolvedTicketUrl = useMemo(() => {
+    const explicit = ticket.jiraUrl?.trim();
+    const normalize = (raw: string) =>
+      /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+    if (explicit) {
+      return normalize(explicit);
+    }
+
+    const base = ticketBaseUrl?.trim();
+    if (!base) return null;
+
+    let full = base;
+    if (base.includes('{key}')) {
+      full = base.replaceAll('{key}', ticket.key);
+    } else {
+      const separatorNeeded =
+        base.endsWith('/') ||
+        base.endsWith('-') ||
+        base.endsWith('_') ||
+        base.endsWith('=');
+      full = `${base}${separatorNeeded ? '' : '/'}${ticket.key}`;
+    }
+
+    return normalize(full);
+  }, [ticket.jiraUrl, ticket.key, ticketBaseUrl]);
 
   useLayoutEffect(() => {
     const updatePosition = () => {
@@ -223,18 +252,13 @@ export function TicketCard({
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {ticket.jiraUrl ? (
+          {resolvedTicketUrl ? (
             <button
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
                 event.preventDefault();
-                const rawUrl = ticket.jiraUrl?.trim();
-                if (!rawUrl) return;
-                const normalized = /^https?:\/\//i.test(rawUrl)
-                  ? rawUrl
-                  : `https://${rawUrl}`;
-                window.open(normalized, '_blank', 'noopener,noreferrer');
+                window.open(resolvedTicketUrl, '_blank', 'noopener,noreferrer');
               }}
               onMouseDown={(event) => {
                 event.stopPropagation();

@@ -1,11 +1,12 @@
 import { useDroppable, useDndContext } from '@dnd-kit/core';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { currentSprintId } from '../lib/calc';
 import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
 import { BACKLOG_COLUMN_ID, UNASSIGNED_DEVELOPER_ID } from '../constants';
 import type { Developer, Ticket } from '../types';
 import { TicketCard } from './TicketCard';
+import { FeatureRenameModal } from './FeatureRenameModal';
 
 type FeatureBoardProps = {
   featureId: string;
@@ -17,14 +18,13 @@ const COLUMN_MIN_WIDTH = 220;
 const COLUMN_GAP = 16;
 
 export function FeatureBoard({ featureId, collapsed = false, onToggle }: FeatureBoardProps) {
-  const { features, developers, sprints, tickets, currentSprintId, updateFeature } = usePiStore(
+  const { features, developers, sprints, tickets, currentSprintId } = usePiStore(
     useShallow((state) => ({
       features: state.features,
       developers: state.developers,
       sprints: state.sprints,
       tickets: state.tickets,
       currentSprintId: state.currentSprintId,
-      updateFeature: state.updateFeature,
     })),
   );
 
@@ -32,15 +32,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
     () => features.find((item) => item.id === featureId),
     [features, featureId],
   );
-
-  const handleRenameFeature = () => {
-    if (!feature) return;
-    const nextName = window.prompt('Rename feature', feature.name);
-    if (!nextName) return;
-    const trimmed = nextName.trim();
-    if (!trimmed || trimmed === feature.name) return;
-    updateFeature(feature.id, { name: trimmed });
-  };
+  const [renameOpen, setRenameOpen] = useState(false);
 
   const orderedSprints = useMemo(
     () => [...sprints].sort((a, b) => a.order - b.order),
@@ -100,6 +92,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
   const canToggle = Boolean(onToggle);
 
   return (
+    <>
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
         <button
@@ -127,7 +120,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              handleRenameFeature();
+              setRenameOpen(true);
             }}
             className="rounded-md border border-transparent p-1 text-xs font-medium text-slate-600 hover:border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           >
@@ -141,7 +134,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
       </header>
       {!collapsed ? (
         <div className="overflow-x-auto">
-        <div className="min-w-max">
+          <div className="min-w-max">
           <div className="grid grid-cols-[12rem,1fr] border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div className="px-5 py-3 font-semibold">Developer</div>
             <div className="px-5 py-3">
@@ -237,10 +230,19 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
               </div>
             );
           })}
-        </div>
+          </div>
         </div>
       ) : null}
     </section>
+    {feature ? (
+      <FeatureRenameModal
+        featureId={feature.id}
+        initialName={feature.name}
+        open={renameOpen}
+        onClose={() => setRenameOpen(false)}
+      />
+    ) : null}
+    </>
   );
 }
 

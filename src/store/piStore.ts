@@ -71,6 +71,7 @@ type PlannerStore = PlannerData & {
   dismissNotice: (id: number) => void;
   setCurrentSprint: (id: string | null) => void;
   resetPlanner: () => void;
+  setTicketBaseUrl: (url: string | null) => void;
 };
 
 const seed = normalizeState(loadPlannerState());
@@ -111,6 +112,7 @@ export const usePiStore = create<PlannerStore>((set, get) => {
       features: patch.features ?? state.features,
       tickets: patch.tickets ?? state.tickets,
       currentSprintId: patch.currentSprintId ?? state.currentSprintId,
+      ticketBaseUrl: patch.ticketBaseUrl ?? state.ticketBaseUrl,
     });
   };
 
@@ -449,6 +451,18 @@ export const usePiStore = create<PlannerStore>((set, get) => {
       set({ currentSprintId: valid });
     },
 
+    setTicketBaseUrl: (url) => {
+      const trimmed =
+        url && url.trim().length > 0 ? url.trim() : null;
+      commit({ ticketBaseUrl: trimmed });
+      set({ ticketBaseUrl: trimmed });
+      if (trimmed) {
+        get().announce(`Ticket links will now use ${trimmed}${trimmed.endsWith('/') ? '' : '/' } + key.`);
+      } else {
+        get().announce('Ticket link base cleared.');
+      }
+    },
+
     resetPlanner: () => {
       clearPlannerState();
       const seeded = normalizeState(loadPlannerState());
@@ -538,5 +552,6 @@ function normalizeState(data: PlannerData): PlannerData {
     features,
     tickets: sanitizedTickets,
     currentSprintId: currentSprintId ?? null,
+    ticketBaseUrl: data.ticketBaseUrl?.trim() ? data.ticketBaseUrl.trim() : null,
   };
 }
