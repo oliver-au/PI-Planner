@@ -93,7 +93,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
 
   return (
     <>
-    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
         <button
           type="button"
@@ -233,15 +233,15 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
           </div>
         </div>
       ) : null}
-    </section>
-    {feature ? (
-      <FeatureRenameModal
-        featureId={feature.id}
-        initialName={feature.name}
-        open={renameOpen}
-        onClose={() => setRenameOpen(false)}
-      />
-    ) : null}
+      </section>
+      {feature ? (
+        <FeatureRenameModal
+          featureId={feature.id}
+          initialName={feature.name}
+          open={renameOpen}
+          onClose={() => setRenameOpen(false)}
+        />
+      ) : null}
     </>
   );
 }
