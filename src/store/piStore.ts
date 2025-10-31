@@ -134,15 +134,24 @@ export const usePiStore = create<PlannerStore>((set, get) => {
 
     updateFeature: (id, patch) => {
       const { features } = get();
-      const nextFeatures = features.map((feature) =>
-        feature.id === id
-          ? {
-              ...feature,
-              ...patch,
-              name: patch.name?.trim() ? patch.name.trim() : feature.name,
-            }
-          : feature,
-      );
+      const nextFeatures = features.map((feature) => {
+        if (feature.id !== id) return feature;
+        const trimmedName = patch.name?.trim();
+        const providedUrl =
+          typeof patch.url === 'string' ? patch.url.trim() : undefined;
+        const normalizedUrl =
+          patch.url === undefined
+            ? feature.url
+            : providedUrl
+            ? providedUrl
+            : undefined;
+        return {
+          ...feature,
+          ...patch,
+          name: trimmedName ? trimmedName : feature.name,
+          url: normalizedUrl,
+        };
+      });
       commit({ features: nextFeatures });
       set({ features: nextFeatures });
     },
@@ -231,9 +240,17 @@ export const usePiStore = create<PlannerStore>((set, get) => {
         if (sprintIds.length === 0) {
           sprintIds = [BACKLOG_COLUMN_ID];
         }
+        const normalizedKey =
+          patch.key === undefined
+            ? ticket.key
+            : patch.key.trim()
+            ? patch.key.trim().toUpperCase()
+            : ticket.key;
+
         return {
           ...ticket,
           ...patch,
+          key: normalizedKey,
           developerId,
           sprintIds,
           jiraUrl: patch.jiraUrl === undefined

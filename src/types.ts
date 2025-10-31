@@ -13,6 +13,7 @@ export type Developer = {
 export type Feature = {
   id: string;
   name: string;
+  url?: string;
 };
 
 export type Ticket = {

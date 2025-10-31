@@ -174,8 +174,16 @@ function buildSeedData(): PlannerData {
   ];
 
   const features: Feature[] = [
-    { id: 'F1', name: 'Unified Billing' },
-    { id: 'F2', name: 'Onboarding Experience' },
+    {
+      id: 'F1',
+      name: 'Unified Billing',
+      url: 'https://product.example.com/features/unified-billing',
+    },
+    {
+      id: 'F2',
+      name: 'Onboarding Experience',
+      url: 'https://product.example.com/features/onboarding-experience',
+    },
   ];
 
   const rawTickets: Omit<Ticket, 'createdAt'>[] = [

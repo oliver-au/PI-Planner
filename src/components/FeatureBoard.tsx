@@ -116,16 +116,47 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
           </div>
         </button>
         <div className="flex items-center gap-2">
+          {feature.url ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                window.open(feature.url, '_blank', 'noopener,noreferrer');
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              className="rounded-md border border-transparent p-1 text-xs font-medium text-slate-600 hover:border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              title="Open feature link"
+            >
+              🔗
+              <span className="sr-only">Open feature link</span>
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
               setRenameOpen(true);
             }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            onMouseDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
             className="rounded-md border border-transparent p-1 text-xs font-medium text-slate-600 hover:border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            title="Edit feature name or link"
           >
             ✎
-            <span className="sr-only">Rename feature</span>
+            <span className="sr-only">Edit feature details</span>
           </button>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
             {featureTickets.length} ticket{featureTickets.length === 1 ? '' : 's'}
@@ -238,6 +269,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
         <FeatureRenameModal
           featureId={feature.id}
           initialName={feature.name}
+          initialUrl={feature.url}
           open={renameOpen}
           onClose={() => setRenameOpen(false)}
         />

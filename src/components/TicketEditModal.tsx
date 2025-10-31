@@ -13,6 +13,7 @@ type TicketEditModalContext = {
 
 let setModalState: ((state: ModalState) => void) | null = null;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTicketEditModal = (): TicketEditModalContext => ({
   openEdit: (id: string) => {
     setModalState?.({ open: true, ticketId: id });
@@ -87,7 +88,7 @@ export function TicketEditModalHost() {
     }
 
     updateTicket(ticket.id, updates);
-    announce(`${ticket.key} updated.`);
+    announce(`${nextTicket.key} updated.`);
     refreshTicketPositions();
     handleClose();
   };
@@ -153,6 +154,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
   );
 
   const [form, setForm] = useState({
+    key: ticket.key,
     name: ticket.name,
     storyPoints: String(ticket.storyPoints),
     developerId: ticket.developerId,
@@ -165,8 +167,9 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
   const dependencyInputRef = useRef<HTMLInputElement | null>(null);
   const [suggestionRect, setSuggestionRect] = useState<{ left: number; top: number; width: number } | null>(null);
   const [dependencyFocused, setDependencyFocused] = useState(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
 
-  const handleFieldChange = (key: 'name' | 'storyPoints' | 'developerId' | 'featureId' | 'jiraUrl', value: string) => {
+  const handleFieldChange = (key: 'key' | 'name' | 'storyPoints' | 'developerId' | 'featureId' | 'jiraUrl', value: string) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
       if (key === 'featureId') {
@@ -179,6 +182,9 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       }
       return next;
     });
+    if (key === 'key' && keyError) {
+      setKeyError(null);
+    }
   };
 
   const toggleSprint = useCallback(
@@ -202,6 +208,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
 
   useEffect(() => {
     setForm({
+      key: ticket.key,
       name: ticket.name,
       storyPoints: String(ticket.storyPoints),
       developerId: ticket.developerId,
@@ -211,6 +218,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       dependencyQuery: '',
       jiraUrl: ticket.jiraUrl ?? '',
     });
+    setKeyError(null);
   }, [
     ticket.id,
     ticket.name,
@@ -219,6 +227,8 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
     ticket.featureId,
     ticket.sprintIds,
     ticket.dependencies,
+    ticket.key,
+    ticket.jiraUrl,
     normalizeSprintTrail,
   ]);
 
@@ -244,13 +254,20 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
   }, [dependencyFocused, form.dependencyQuery, updateSuggestionRect]);
 
   const handleSubmit = () => {
+    const trimmedKey = form.key.trim().toUpperCase();
+    if (!trimmedKey) {
+      setKeyError('Issue number is required.');
+      return;
+    }
     const storyPoints = Number.parseInt(form.storyPoints, 10);
-    if (!form.name.trim() || Number.isNaN(storyPoints) || storyPoints <= 0) {
+    const trimmedName = form.name.trim();
+    if (!trimmedName || Number.isNaN(storyPoints) || storyPoints <= 0) {
       return;
     }
     const trimmedUrl = form.jiraUrl.trim();
     onSave({
-      name: form.name.trim(),
+      key: trimmedKey,
+      name: trimmedName,
       storyPoints,
       developerId: form.developerId,
       featureId: form.featureId,
@@ -385,6 +402,22 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
           </button>
         </header>
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          <div>
+            <label className="flex flex-col gap-2 text-sm text-slate-700">
+              Jira issue #
+              <input
+                value={form.key}
+                onChange={(event) => handleFieldChange('key', event.target.value)}
+                className={`rounded-md border px-3 py-2 ${keyError ? 'border-red-500' : 'border-slate-300'}`}
+                placeholder={ticket.key}
+              />
+              {keyError ? (
+                <span className="text-xs text-red-600" role="alert">
+                  {keyError}
+                </span>
+              ) : null}
+            </label>
+          </div>
           <div>
             <label className="flex flex-col gap-2 text-sm text-slate-700">
               Title

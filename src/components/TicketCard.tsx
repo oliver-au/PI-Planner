@@ -42,6 +42,7 @@ export function TicketCard({
     developers,
     sprints,
     ticketBaseUrl,
+    updateTicket,
   } = usePiStore(
     useShallow((state) => ({
       deleteTicket: state.deleteTicket,
@@ -55,6 +56,7 @@ export function TicketCard({
       developers: state.developers,
       sprints: state.sprints,
       ticketBaseUrl: state.ticketBaseUrl,
+      updateTicket: state.updateTicket,
     })),
   );
   const { openEdit } = useTicketEditModal();
@@ -217,6 +219,15 @@ export function TicketCard({
     [setNodeRef],
   );
 
+  const handleKeyEdit = useCallback(() => {
+    const nextKey = window.prompt('Update Jira issue number', ticket.key);
+    if (nextKey === null) return;
+    const trimmed = nextKey.trim().toUpperCase();
+    if (!trimmed || trimmed === ticket.key) return;
+    updateTicket(ticket.id, { key: trimmed });
+    announce(`Issue number updated to ${trimmed}.`);
+  }, [announce, ticket.id, ticket.key, updateTicket]);
+
   const { onKeyDown: dndOnKeyDown, ...restListeners } = listeners as typeof listeners & {
     onKeyDown?: (event: KeyboardEvent<HTMLDivElement> | KeyboardEvent<Element>) => void;
   };
@@ -241,9 +252,27 @@ export function TicketCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold uppercase tracking-wide text-slate-800">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+              handleKeyEdit();
+            }}
+            onMouseDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            className="text-sm font-semibold uppercase tracking-wide text-slate-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded"
+            title="Edit Jira issue number"
+          >
             {ticket.key}
-          </span>
+            <span className="sr-only">Edit Jira issue number</span>
+          </button>
           <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
             <span className="font-semibold">{ticket.storyPoints}</span>
             <span className="ml-1 text-[10px] uppercase tracking-wide text-slate-500">
@@ -296,7 +325,19 @@ export function TicketCard({
             </button>
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                handleDelete();
+              }}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
               className="rounded-md border border-transparent p-1 text-xs font-medium text-red-600 hover:border-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
             ✕
