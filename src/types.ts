@@ -16,6 +16,14 @@ export type Feature = {
   url?: string;
 };
 
+export type TicketStatus = 
+  | 'TO DO'
+  | 'IN PROGRESS'
+  | 'READY FOR TEST'
+  | 'IN TEST'
+  | 'PO REVIEW'
+  | 'DONE';
+
 export type Ticket = {
   id: string;
   key: string;
@@ -27,4 +35,5 @@ export type Ticket = {
   dependencies: string[];
   createdAt: number;
   jiraUrl?: string;
+  status: TicketStatus;
 };

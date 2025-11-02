@@ -3,9 +3,10 @@ import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
-import type { Sprint, Ticket } from '../types';
+import type { Sprint, Ticket, TicketStatus } from '../types';
 import { currentSprintId as getTicketCurrentSprintId, isMoveBlockedByDeps as checkMoveBlocked, sortSprintTrail } from '../lib/calc';
 import { BACKLOG_COLUMN_ID } from '../constants';
+import { STATUS_OPTIONS } from '../utils/statusColors';
 
 type TicketEditModalContext = {
   openEdit: (id: string) => void;
@@ -163,13 +164,14 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
     dependencyIds: ticket.dependencies,
     dependencyQuery: '',
     jiraUrl: ticket.jiraUrl ?? '',
+    status: ticket.status,
   });
   const dependencyInputRef = useRef<HTMLInputElement | null>(null);
   const [suggestionRect, setSuggestionRect] = useState<{ left: number; top: number; width: number } | null>(null);
   const [dependencyFocused, setDependencyFocused] = useState(false);
   const [keyError, setKeyError] = useState<string | null>(null);
 
-  const handleFieldChange = (key: 'key' | 'name' | 'storyPoints' | 'developerId' | 'featureId' | 'jiraUrl', value: string) => {
+  const handleFieldChange = (key: 'key' | 'name' | 'storyPoints' | 'developerId' | 'featureId' | 'jiraUrl' | 'status', value: string) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
       if (key === 'featureId') {
@@ -217,6 +219,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       dependencyIds: ticket.dependencies,
       dependencyQuery: '',
       jiraUrl: ticket.jiraUrl ?? '',
+      status: ticket.status,
     });
     setKeyError(null);
   }, [
@@ -229,6 +232,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
     ticket.dependencies,
     ticket.key,
     ticket.jiraUrl,
+    ticket.status,
     normalizeSprintTrail,
   ]);
 
@@ -274,6 +278,7 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
       sprintIds: form.sprintTrail,
       dependencies: form.dependencyIds,
       jiraUrl: trimmedUrl ? trimmedUrl : undefined,
+      status: form.status,
     });
   };
 
@@ -437,6 +442,20 @@ function TicketEditModal({ ticket, features, developers, sprints, allTickets, on
                 className="rounded-md border border-slate-300 px-3 py-2"
                 inputMode="numeric"
               />
+            </label>
+            <label className="flex flex-col gap-2 text-sm text-slate-700">
+              Status
+              <select
+                value={form.status}
+                onChange={(event) => handleFieldChange('status', event.target.value as TicketStatus)}
+                className="rounded-md border border-slate-300 px-3 py-2"
+              >
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="flex flex-col gap-2 text-sm text-slate-700 md:col-span-2">
               Jira issue link

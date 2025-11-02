@@ -7,6 +7,7 @@ import { BACKLOG_COLUMN_ID, UNASSIGNED_DEVELOPER_ID } from '../constants';
 import type { Developer, Ticket } from '../types';
 import { TicketCard } from './TicketCard';
 import { FeatureRenameModal } from './FeatureRenameModal';
+import { DependencyWorkflowModal } from './DependencyWorkflowModal';
 
 type FeatureBoardProps = {
   featureId: string;
@@ -33,6 +34,7 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
     [features, featureId],
   );
   const [renameOpen, setRenameOpen] = useState(false);
+  const [workflowOpen, setWorkflowOpen] = useState(false);
 
   const orderedSprints = useMemo(
     () => [...sprints].sort((a, b) => a.order - b.order),
@@ -116,6 +118,26 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
           </div>
         </button>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setWorkflowOpen(true);
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            onMouseDown={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+            }}
+            className="rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            title="View dependency workflow"
+          >
+            🔀 Dependency
+            <span className="sr-only">View dependency workflow</span>
+          </button>
           {feature.url ? (
             <button
               type="button"
@@ -266,13 +288,20 @@ export function FeatureBoard({ featureId, collapsed = false, onToggle }: Feature
       ) : null}
       </section>
       {feature ? (
-        <FeatureRenameModal
-          featureId={feature.id}
-          initialName={feature.name}
-          initialUrl={feature.url}
-          open={renameOpen}
-          onClose={() => setRenameOpen(false)}
-        />
+        <>
+          <FeatureRenameModal
+            featureId={feature.id}
+            initialName={feature.name}
+            initialUrl={feature.url}
+            open={renameOpen}
+            onClose={() => setRenameOpen(false)}
+          />
+          <DependencyWorkflowModal
+            featureId={feature.id}
+            open={workflowOpen}
+            onClose={() => setWorkflowOpen(false)}
+          />
+        </>
       ) : null}
     </>
   );

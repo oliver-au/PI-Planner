@@ -3,20 +3,14 @@ import { useDraggable } from '@dnd-kit/core';
 import type { KeyboardEvent } from 'react';
 import {
   useCallback,
-  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
 import type { Ticket } from '../types';
 import { usePiStore } from '../store/piStore';
 import { useTicketEditModal } from './TicketEditModal';
-import { useTicketRefs } from './DependencyOverlay';
 import { useShallow } from 'zustand/react/shallow';
-import {
-  rectEquals,
-  snapshotRect,
-  type RectSnapshot,
-} from '../lib/geometry';
+import { getStatusColors } from '../utils/statusColors';
 
 type TicketCardProps = {
   ticket: Ticket;
@@ -61,8 +55,6 @@ export function TicketCard({
   );
   const { openEdit } = useTicketEditModal();
 
-  const { setTicketPosition, removeTicketPosition } = useTicketRefs();
-
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: ticket.id,
@@ -70,7 +62,8 @@ export function TicketCard({
     });
 
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const lastRectRef = useRef<RectSnapshot | null>(null);
+
+  const statusColors = getStatusColors(ticket.status);
 
   const style = useMemo(() => {
     const translate = transform
@@ -108,40 +101,6 @@ export function TicketCard({
 
     return normalize(full);
   }, [ticket.jiraUrl, ticket.key, ticketBaseUrl]);
-
-  useLayoutEffect(() => {
-    const updatePosition = () => {
-      const node = cardRef.current;
-      if (!node) return;
-      const snapshot = snapshotRect(node.getBoundingClientRect());
-      const previous = lastRectRef.current;
-      if (previous && rectEquals(previous, snapshot)) {
-        return;
-      }
-      lastRectRef.current = snapshot;
-      setTicketPosition(ticket.id, snapshot);
-    };
-
-    updatePosition();
-
-    const resizeObserver = new ResizeObserver(() => updatePosition());
-    const node = cardRef.current;
-    if (node) {
-      resizeObserver.observe(node);
-    }
-
-    const handleScroll = () => updatePosition();
-    window.addEventListener('scroll', handleScroll, true);
-    window.addEventListener('resize', updatePosition);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('scroll', handleScroll, true);
-      window.removeEventListener('resize', updatePosition);
-      removeTicketPosition(ticket.id);
-      lastRectRef.current = null;
-    };
-  }, [removeTicketPosition, setTicketPosition, ticket.id]);
 
   const dependentTickets = useMemo(
     () =>
@@ -351,6 +310,12 @@ export function TicketCard({
       >
         {ticket.name}
       </p>
+      
+      {/* Status Badge (display only) */}
+      <div className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium my-2 ${statusColors.bg} ${statusColors.text} ${statusColors.border}`}>
+        {ticket.status}
+      </div>
+
       <p className="text-xs text-slate-400">
         ID: {ticket.id}
       </p>

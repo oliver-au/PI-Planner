@@ -1,0 +1,791 @@
+{
+  "sprints": [
+    {
+      "id": "S1",
+      "name": "Sprint 1 - Planning",
+      "order": 1,
+      "capacityPerDevSP": 10
+    },
+    {
+      "id": "S2",
+      "name": "Sprint 2 - Foundation",
+      "order": 2,
+      "capacityPerDevSP": 10
+    },
+    {
+      "id": "S3",
+      "name": "Sprint 3 - Integration",
+      "order": 3,
+      "capacityPerDevSP": 10
+    },
+    {
+      "id": "S4",
+      "name": "Sprint 4 - Testing",
+      "order": 4,
+      "capacityPerDevSP": 10
+    },
+    {
+      "id": "S5",
+      "name": "Sprint 5 - Release",
+      "order": 5,
+      "capacityPerDevSP": 10
+    }
+  ],
+  "developers": [
+    {
+      "id": "unassigned",
+      "name": "Unassigned"
+    },
+    {
+      "id": "dev-alice",
+      "name": "Alice Chen"
+    },
+    {
+      "id": "dev-bob",
+      "name": "Bob Martinez"
+    },
+    {
+      "id": "dev-carol",
+      "name": "Carol Zhang"
+    },
+    {
+      "id": "dev-david",
+      "name": "David Kumar"
+    },
+    {
+      "id": "dev-eva",
+      "name": "Eva Rodriguez"
+    },
+    {
+      "id": "dev-frank",
+      "name": "Frank Johnson"
+    },
+    {
+      "id": "dev-grace",
+      "name": "Grace Park"
+    },
+    {
+      "id": "dev-henry",
+      "name": "Henry Williams"
+    }
+  ],
+  "features": [
+    {
+      "id": "F1",
+      "name": "E-Commerce Platform Modernization",
+      "url": "https://jira.example.com/projects/ECOM/features/1"
+    },
+    {
+      "id": "F2",
+      "name": "Customer Analytics Dashboard",
+      "url": "https://jira.example.com/projects/ANALYTICS/features/2"
+    },
+    {
+      "id": "F3",
+      "name": "Mobile App Payment Integration",
+      "url": "https://jira.example.com/projects/MOBILE/features/3"
+    },
+    {
+      "id": "F4",
+      "name": "Security & Compliance Upgrade",
+      "url": "https://jira.example.com/projects/SEC/features/4"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "t-ecom-1",
+      "key": "ECOM-101",
+      "name": "Database schema migration for product catalog",
+      "storyPoints": 8,
+      "developerId": "dev-alice",
+      "featureId": "F1",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-101",
+      "createdAt": 1698800000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-ecom-2",
+      "key": "ECOM-102",
+      "name": "API gateway setup and configuration",
+      "storyPoints": 5,
+      "developerId": "dev-bob",
+      "featureId": "F1",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-102",
+      "createdAt": 1698801000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-ecom-3",
+      "key": "ECOM-103",
+      "name": "Product search microservice",
+      "storyPoints": 13,
+      "developerId": "dev-alice",
+      "featureId": "F1",
+      "sprintIds": [
+        "S2",
+        "S3"
+      ],
+      "dependencies": [
+        "t-ecom-1",
+        "t-ecom-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-103",
+      "createdAt": 1698802000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-ecom-4",
+      "key": "ECOM-104",
+      "name": "Shopping cart service refactoring",
+      "storyPoints": 8,
+      "developerId": "dev-carol",
+      "featureId": "F1",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-ecom-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-104",
+      "createdAt": 1698803000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-ecom-5",
+      "key": "ECOM-105",
+      "name": "Inventory management integration",
+      "storyPoints": 5,
+      "developerId": "dev-david",
+      "featureId": "F1",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-ecom-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-105",
+      "createdAt": 1698804000000,
+      "status": "READY FOR TEST"
+    },
+    {
+      "id": "t-ecom-6",
+      "key": "ECOM-106",
+      "name": "Checkout flow modernization",
+      "storyPoints": 8,
+      "developerId": "dev-carol",
+      "featureId": "F1",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-ecom-4"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-106",
+      "createdAt": 1698805000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-ecom-7",
+      "key": "ECOM-107",
+      "name": "Payment gateway integration",
+      "storyPoints": 13,
+      "developerId": "dev-bob",
+      "featureId": "F1",
+      "sprintIds": [
+        "S3",
+        "S4"
+      ],
+      "dependencies": [
+        "t-ecom-6",
+        "t-sec-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-107",
+      "createdAt": 1698806000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-ecom-8",
+      "key": "ECOM-108",
+      "name": "Order confirmation system",
+      "storyPoints": 5,
+      "developerId": "dev-eva",
+      "featureId": "F1",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-ecom-7"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-108",
+      "createdAt": 1698807000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-ecom-9",
+      "key": "ECOM-109",
+      "name": "Performance testing and optimization",
+      "storyPoints": 8,
+      "developerId": "dev-frank",
+      "featureId": "F1",
+      "sprintIds": [
+        "S4",
+        "S5"
+      ],
+      "dependencies": [
+        "t-ecom-3",
+        "t-ecom-6"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-109",
+      "createdAt": 1698808000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-ecom-10",
+      "key": "ECOM-110",
+      "name": "Production deployment automation",
+      "storyPoints": 5,
+      "developerId": "dev-grace",
+      "featureId": "F1",
+      "sprintIds": [
+        "S5"
+      ],
+      "dependencies": [
+        "t-ecom-9"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ECOM-110",
+      "createdAt": 1698809000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-analytics-1",
+      "key": "ANLY-201",
+      "name": "Data pipeline architecture design",
+      "storyPoints": 8,
+      "developerId": "dev-henry",
+      "featureId": "F2",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-201",
+      "createdAt": 1698810000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-analytics-2",
+      "key": "ANLY-202",
+      "name": "ETL jobs for customer data",
+      "storyPoints": 13,
+      "developerId": "dev-henry",
+      "featureId": "F2",
+      "sprintIds": [
+        "S2",
+        "S3"
+      ],
+      "dependencies": [
+        "t-analytics-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-202",
+      "createdAt": 1698811000000,
+      "status": "IN TEST"
+    },
+    {
+      "id": "t-analytics-3",
+      "key": "ANLY-203",
+      "name": "Real-time analytics engine",
+      "storyPoints": 8,
+      "developerId": "dev-alice",
+      "featureId": "F2",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-analytics-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-203",
+      "createdAt": 1698812000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-analytics-4",
+      "key": "ANLY-204",
+      "name": "Dashboard UI components",
+      "storyPoints": 8,
+      "developerId": "dev-eva",
+      "featureId": "F2",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-204",
+      "createdAt": 1698813000000,
+      "status": "READY FOR TEST"
+    },
+    {
+      "id": "t-analytics-5",
+      "key": "ANLY-205",
+      "name": "Chart library integration",
+      "storyPoints": 5,
+      "developerId": "dev-eva",
+      "featureId": "F2",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-analytics-4"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-205",
+      "createdAt": 1698814000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-analytics-6",
+      "key": "ANLY-206",
+      "name": "Data aggregation service",
+      "storyPoints": 8,
+      "developerId": "dev-frank",
+      "featureId": "F2",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-analytics-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-206",
+      "createdAt": 1698815000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-analytics-7",
+      "key": "ANLY-207",
+      "name": "Connect dashboard to live data",
+      "storyPoints": 5,
+      "developerId": "dev-eva",
+      "featureId": "F2",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-analytics-5",
+        "t-analytics-6",
+        "t-analytics-3"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-207",
+      "createdAt": 1698816000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-analytics-8",
+      "key": "ANLY-208",
+      "name": "User permissions and access control",
+      "storyPoints": 5,
+      "developerId": "dev-grace",
+      "featureId": "F2",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-sec-3"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-208",
+      "createdAt": 1698817000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-analytics-9",
+      "key": "ANLY-209",
+      "name": "Export and reporting features",
+      "storyPoints": 8,
+      "developerId": "dev-henry",
+      "featureId": "F2",
+      "sprintIds": [
+        "S5"
+      ],
+      "dependencies": [
+        "t-analytics-7"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/ANLY-209",
+      "createdAt": 1698818000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-mobile-1",
+      "key": "MOB-301",
+      "name": "Mobile SDK integration",
+      "storyPoints": 8,
+      "developerId": "dev-david",
+      "featureId": "F3",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/MOB-301",
+      "createdAt": 1698819000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-mobile-2",
+      "key": "MOB-302",
+      "name": "Payment UI screens design",
+      "storyPoints": 5,
+      "developerId": "dev-grace",
+      "featureId": "F3",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/MOB-302",
+      "createdAt": 1698820000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-mobile-3",
+      "key": "MOB-303",
+      "name": "Apple Pay integration",
+      "storyPoints": 8,
+      "developerId": "dev-david",
+      "featureId": "F3",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-mobile-1",
+        "t-mobile-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-303",
+      "createdAt": 1698821000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-mobile-4",
+      "key": "MOB-304",
+      "name": "Google Pay integration",
+      "storyPoints": 8,
+      "developerId": "dev-grace",
+      "featureId": "F3",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-mobile-1",
+        "t-mobile-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-304",
+      "createdAt": 1698822000000,
+      "status": "READY FOR TEST"
+    },
+    {
+      "id": "t-mobile-5",
+      "key": "MOB-305",
+      "name": "Payment tokenization service",
+      "storyPoints": 8,
+      "developerId": "dev-bob",
+      "featureId": "F3",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-sec-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-305",
+      "createdAt": 1698823000000,
+      "status": "IN TEST"
+    },
+    {
+      "id": "t-mobile-6",
+      "key": "MOB-306",
+      "name": "Transaction history view",
+      "storyPoints": 5,
+      "developerId": "dev-grace",
+      "featureId": "F3",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-mobile-3",
+        "t-mobile-4"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-306",
+      "createdAt": 1698824000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-mobile-7",
+      "key": "MOB-307",
+      "name": "Refund and dispute handling",
+      "storyPoints": 8,
+      "developerId": "dev-david",
+      "featureId": "F3",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-mobile-5"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-307",
+      "createdAt": 1698825000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-mobile-8",
+      "key": "MOB-308",
+      "name": "3D Secure authentication flow",
+      "storyPoints": 8,
+      "developerId": "dev-bob",
+      "featureId": "F3",
+      "sprintIds": [
+        "S3",
+        "S4"
+      ],
+      "dependencies": [
+        "t-mobile-5",
+        "t-sec-3"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-308",
+      "createdAt": 1698826000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-mobile-9",
+      "key": "MOB-309",
+      "name": "Payment analytics and monitoring",
+      "storyPoints": 5,
+      "developerId": "dev-henry",
+      "featureId": "F3",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-mobile-6",
+        "t-mobile-7"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-309",
+      "createdAt": 1698827000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-mobile-10",
+      "key": "MOB-310",
+      "name": "End-to-end testing suite",
+      "storyPoints": 8,
+      "developerId": "dev-frank",
+      "featureId": "F3",
+      "sprintIds": [
+        "S5"
+      ],
+      "dependencies": [
+        "t-mobile-8",
+        "t-mobile-9"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/MOB-310",
+      "createdAt": 1698828000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-sec-1",
+      "key": "SEC-401",
+      "name": "Security audit and gap analysis",
+      "storyPoints": 5,
+      "developerId": "dev-frank",
+      "featureId": "F4",
+      "sprintIds": [
+        "S1"
+      ],
+      "dependencies": [],
+      "jiraUrl": "https://jira.example.com/browse/SEC-401",
+      "createdAt": 1698829000000,
+      "status": "DONE"
+    },
+    {
+      "id": "t-sec-2",
+      "key": "SEC-402",
+      "name": "PCI DSS compliance implementation",
+      "storyPoints": 13,
+      "developerId": "dev-frank",
+      "featureId": "F4",
+      "sprintIds": [
+        "S2",
+        "S3"
+      ],
+      "dependencies": [
+        "t-sec-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-402",
+      "createdAt": 1698830000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-sec-3",
+      "key": "SEC-403",
+      "name": "OAuth2 and SSO integration",
+      "storyPoints": 8,
+      "developerId": "dev-grace",
+      "featureId": "F4",
+      "sprintIds": [
+        "S2"
+      ],
+      "dependencies": [
+        "t-sec-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-403",
+      "createdAt": 1698831000000,
+      "status": "READY FOR TEST"
+    },
+    {
+      "id": "t-sec-4",
+      "key": "SEC-404",
+      "name": "Data encryption at rest",
+      "storyPoints": 8,
+      "developerId": "dev-alice",
+      "featureId": "F4",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-sec-2"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-404",
+      "createdAt": 1698832000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-sec-5",
+      "key": "SEC-405",
+      "name": "API rate limiting and DDoS protection",
+      "storyPoints": 5,
+      "developerId": "dev-bob",
+      "featureId": "F4",
+      "sprintIds": [
+        "S3"
+      ],
+      "dependencies": [
+        "t-sec-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-405",
+      "createdAt": 1698833000000,
+      "status": "IN PROGRESS"
+    },
+    {
+      "id": "t-sec-6",
+      "key": "SEC-406",
+      "name": "Vulnerability scanning automation",
+      "storyPoints": 5,
+      "developerId": "dev-frank",
+      "featureId": "F4",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-sec-4",
+        "t-sec-5"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-406",
+      "createdAt": 1698834000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-sec-7",
+      "key": "SEC-407",
+      "name": "Security incident response plan",
+      "storyPoints": 3,
+      "developerId": "dev-grace",
+      "featureId": "F4",
+      "sprintIds": [
+        "S4"
+      ],
+      "dependencies": [
+        "t-sec-1"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-407",
+      "createdAt": 1698835000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-sec-8",
+      "key": "SEC-408",
+      "name": "Compliance documentation and training",
+      "storyPoints": 5,
+      "developerId": "dev-carol",
+      "featureId": "F4",
+      "sprintIds": [
+        "S5"
+      ],
+      "dependencies": [
+        "t-sec-6",
+        "t-sec-7"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-408",
+      "createdAt": 1698836000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-sec-9",
+      "key": "SEC-409",
+      "name": "Security certification audit",
+      "storyPoints": 8,
+      "developerId": "dev-frank",
+      "featureId": "F4",
+      "sprintIds": [
+        "S5"
+      ],
+      "dependencies": [
+        "t-sec-8"
+      ],
+      "jiraUrl": "https://jira.example.com/browse/SEC-409",
+      "createdAt": 1698837000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-backlog-1",
+      "key": "TECH-501",
+      "name": "Technical debt: refactor legacy authentication",
+      "storyPoints": 8,
+      "developerId": "unassigned",
+      "featureId": "F4",
+      "sprintIds": [
+        "backlog"
+      ],
+      "dependencies": [],
+      "createdAt": 1698838000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-backlog-2",
+      "key": "TECH-502",
+      "name": "Migrate to latest Node.js LTS",
+      "storyPoints": 5,
+      "developerId": "unassigned",
+      "featureId": "F1",
+      "sprintIds": [
+        "backlog"
+      ],
+      "dependencies": [],
+      "createdAt": 1698839000000,
+      "status": "TO DO"
+    },
+    {
+      "id": "t-backlog-3",
+      "key": "DOCS-601",
+      "name": "API documentation overhaul",
+      "storyPoints": 3,
+      "developerId": "unassigned",
+      "featureId": "F2",
+      "sprintIds": [
+        "backlog"
+      ],
+      "dependencies": [],
+      "createdAt": 1698840000000,
+      "status": "TO DO"
+    }
+  ],
+  "currentSprintId": "S2",
+  "ticketBaseUrl": "https://jira.example.com/browse/"
+}

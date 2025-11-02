@@ -1,9 +1,8 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { AddTicketForm } from './components/AddTicketForm';
 import { CapacitySummary } from './components/CapacitySummary';
-import { DependencyOverlay, TicketRefProvider } from './components/DependencyOverlay';
 import { FeatureBoard } from './components/FeatureBoard';
 import { usePiStore } from './store/piStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -38,12 +37,11 @@ function App() {
   const isMoveBlockedByDeps = usePiStore((state) => state.isMoveBlockedByDeps);
   const announce = usePiStore((state) => state.announce);
   const pushNotice = usePiStore((state) => state.pushNotice);
-  const showDependencies = usePiStore((state) => state.showDependencies);
-  const toggleDependencies = usePiStore((state) => state.toggleDependencies);
   const cancelKeyboardMove = usePiStore((state) => state.cancelKeyboardMove);
   const liveAnnouncement = usePiStore((state) => state.liveAnnouncement);
   const setCurrentSprint = usePiStore((state) => state.setCurrentSprint);
   const resetPlanner = usePiStore((state) => state.resetPlanner);
+  const hydrateFromStorage = usePiStore((state) => state.hydrateFromStorage);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const lastDropRef = useRef<DropData | null>(null);
@@ -60,6 +58,10 @@ function App() {
     () => [...sprints].sort((a, b) => a.order - b.order),
     [sprints],
   );
+
+  useEffect(() => {
+    void hydrateFromStorage();
+  }, [hydrateFromStorage]);
 
   const toggleFeatureSection = useCallback((featureId: string) => {
     setCollapsedFeatures((prev) => {
@@ -144,33 +146,23 @@ function App() {
   };
 
   return (
-    <TicketRefProvider>
-      <DndContext
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={resetDragState}
-      >
-        <div className="min-h-screen bg-slate-100">
-          <NoticeStack />
-          <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-            <div className="mx-auto flex max-w-[110rem] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">PI Planner</h1>
-                <p className="mt-1 text-sm text-slate-600">
-                  Plan by sprint and developer. Drag to move, hold Option/Alt to extend into a later sprint.
-                </p>
-              </div>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+      onDragCancel={resetDragState}
+    >
+      <div className="min-h-screen bg-slate-100">
+        <NoticeStack />
+        <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
+          <div className="mx-auto flex max-w-[110rem] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">PI Planner</h1>
+              <p className="mt-1 text-sm text-slate-600">
+                Plan by sprint and developer. Drag to move, hold Option/Alt to extend into a later sprint.
+              </p>
+            </div>
               <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={toggleDependencies}
-                  className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-                  aria-pressed={showDependencies}
-                >
-                  <span aria-hidden="true">{showDependencies ? '👁️' : '🚫'}</span>
-                  {showDependencies ? 'Hide dependencies' : 'Show dependencies'}
-                </button>
                 <label
                   htmlFor="planner-current-sprint"
                   className="relative inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus-within:ring-2 focus-within:ring-sky-500 focus-within:ring-offset-2"
@@ -256,7 +248,6 @@ function App() {
                 />
               ))}
             </div>
-            <DependencyOverlay containerRef={containerRef} />
           </main>
           <div
             aria-live="polite"
@@ -270,24 +261,23 @@ function App() {
           ticketId={activeTicketId}
           tickets={tickets}
         />
+        <DeveloperManagerModal
+          open={showDeveloperModal}
+          onClose={() => setShowDeveloperModal(false)}
+        />
+        <FeatureManagerModal
+          open={showFeatureModal}
+          onClose={() => setShowFeatureModal(false)}
+        />
+        <TicketEditModalHost />
+        <DataManagerModal open={showDataModal} onClose={() => setShowDataModal(false)} />
+        <TicketBaseUrlModal
+          open={showTicketBaseModal}
+          onClose={() => setShowTicketBaseModal(false)}
+        />
       </DndContext>
-      <DeveloperManagerModal
-        open={showDeveloperModal}
-        onClose={() => setShowDeveloperModal(false)}
-      />
-      <FeatureManagerModal
-        open={showFeatureModal}
-        onClose={() => setShowFeatureModal(false)}
-      />
-      <TicketEditModalHost />
-      <DataManagerModal open={showDataModal} onClose={() => setShowDataModal(false)} />
-      <TicketBaseUrlModal
-        open={showTicketBaseModal}
-        onClose={() => setShowTicketBaseModal(false)}
-      />
-    </TicketRefProvider>
-  );
-}
+    );
+  }
 
 export default App;
 

@@ -1,12 +1,19 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
 import { currentSprintId, isMoveBlockedByDeps, sortSprintTrail } from '../lib/calc';
-import { clearPlannerState, loadPlannerState, persistPlannerState, type PlannerData } from '../lib/persist';
-import type { Developer, Feature, Sprint, Ticket } from '../types';
+import {
+  buildSeedData,
+  clearPlannerState,
+  loadPlannerState,
+  persistPlannerState,
+  ensureSprintSlots,
+  ensureUnassignedDeveloper,
+  type PlannerData,
+} from '../lib/persist';
+import type { Developer, Feature, Ticket } from '../types';
 import {
   BACKLOG_COLUMN_ID,
   DEFAULT_SPRINT_CAPACITY,
-  REQUIRED_SPRINT_COUNT,
   UNASSIGNED_DEVELOPER_ID,
 } from '../constants';
 
@@ -72,48 +79,23 @@ type PlannerStore = PlannerData & {
   setCurrentSprint: (id: string | null) => void;
   resetPlanner: () => void;
   setTicketBaseUrl: (url: string | null) => void;
+  hydrateFromStorage: () => Promise<void>;
 };
 
-const seed = normalizeState(loadPlannerState());
-
-function ensureUnassignedDeveloper(developers: Developer[]): Developer[] {
-  if (developers.some((dev) => dev.id === UNASSIGNED_DEVELOPER_ID)) {
-    return developers;
-  }
-  return [
-    { id: UNASSIGNED_DEVELOPER_ID, name: 'Unassigned' },
-    ...developers,
-  ];
-}
-
-function ensureSprintSlots(sprints: Sprint[]): Sprint[] {
-  const sorted = [...sprints].sort((a, b) => a.order - b.order);
-  let nextOrder = sorted.length ? sorted[sorted.length - 1]!.order + 1 : 1;
-  const result = [...sorted];
-  while (result.length < REQUIRED_SPRINT_COUNT) {
-    const index = result.length + 1;
-    result.push({
-      id: `S${index}`,
-      name: `Sprint ${index}`,
-      order: nextOrder,
-      capacityPerDevSP: DEFAULT_SPRINT_CAPACITY,
-    });
-    nextOrder += 1;
-  }
-  return result;
-}
+const seed = normalizeState(buildSeedData());
 
 export const usePiStore = create<PlannerStore>((set, get) => {
   const commit = (patch: Partial<PlannerData>) => {
     const state = get();
-    persistPlannerState({
+    const nextState: PlannerData = {
       sprints: patch.sprints ?? state.sprints,
       developers: patch.developers ?? state.developers,
       features: patch.features ?? state.features,
       tickets: patch.tickets ?? state.tickets,
       currentSprintId: patch.currentSprintId ?? state.currentSprintId,
       ticketBaseUrl: patch.ticketBaseUrl ?? state.ticketBaseUrl,
-    });
+    };
+    void persistPlannerState(nextState);
   };
 
   return {
@@ -122,6 +104,23 @@ export const usePiStore = create<PlannerStore>((set, get) => {
     keyboardMove: null,
     liveAnnouncement: null,
     notices: [],
+    hydrateFromStorage: async () => {
+      try {
+        const loaded = await loadPlannerState();
+        const normalized = normalizeState(loaded);
+        set((state) => ({
+          ...state,
+          sprints: normalized.sprints,
+          developers: normalized.developers,
+          features: normalized.features,
+          tickets: normalized.tickets,
+          currentSprintId: normalized.currentSprintId,
+          ticketBaseUrl: normalized.ticketBaseUrl,
+        }));
+      } catch (error) {
+        console.warn('pi-planner: failed to hydrate planner store', error);
+      }
+    },
 
     addFeature: (name) => {
       const trimmed = name.trim();
@@ -316,7 +315,7 @@ export const usePiStore = create<PlannerStore>((set, get) => {
 
     replaceState: (data) => {
       const normalized = normalizeState(data);
-      persistPlannerState(normalized);
+      void persistPlannerState(normalized);
       set(normalized);
     },
 
@@ -481,8 +480,8 @@ export const usePiStore = create<PlannerStore>((set, get) => {
     },
 
     resetPlanner: () => {
-      clearPlannerState();
-      const seeded = normalizeState(loadPlannerState());
+      void clearPlannerState();
+      const seeded = normalizeState(buildSeedData());
       const cleared: PlannerData = {
         ...seeded,
         developers: [
@@ -491,7 +490,7 @@ export const usePiStore = create<PlannerStore>((set, get) => {
         features: [],
         tickets: [],
       };
-      persistPlannerState(cleared);
+      void persistPlannerState(cleared);
       set({
         ...cleared,
         notices: [],
