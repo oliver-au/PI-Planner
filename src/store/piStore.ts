@@ -10,7 +10,7 @@ import {
   ensureUnassignedDeveloper,
   type PlannerData,
 } from '../lib/persist';
-import type { Developer, Feature, Ticket } from '../types';
+import type { Developer, Feature, Ticket, TicketStatus } from '../types';
 import {
   BACKLOG_COLUMN_ID,
   DEFAULT_SPRINT_CAPACITY,
@@ -49,7 +49,7 @@ type PlannerStore = PlannerData & {
   addDeveloper: (name: string) => void;
   updateDeveloper: (id: string, patch: Partial<Developer>) => void;
   removeDeveloper: (id: string) => void;
-  addTicket: (partial: Omit<Ticket, 'id' | 'createdAt' | 'dependencies' | 'sprintIds'> & { sprintIds?: string[]; dependencies?: string[] }) => void;
+  addTicket: (partial: Omit<Ticket, 'id' | 'createdAt' | 'dependencies' | 'sprintIds' | 'status'> & { sprintIds?: string[]; dependencies?: string[]; status?: TicketStatus }) => void;
   updateTicket: (id: string, patch: Partial<Ticket>) => void;
   deleteTicket: (id: string) => void;
   moveTicket: (id: string, toSprintId: string, mode: MoveMode) => void;
@@ -220,6 +220,7 @@ export const usePiStore = create<PlannerStore>((set, get) => {
         dependencies: partial.dependencies ?? [],
         developerId,
         jiraUrl: partial.jiraUrl?.trim() ? partial.jiraUrl.trim() : undefined,
+        status: partial.status ?? 'TO DO',
       };
       const nextTickets = [...tickets, ticket];
       commit({ tickets: nextTickets });

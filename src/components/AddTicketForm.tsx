@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
 import { BACKLOG_COLUMN_ID, UNASSIGNED_DEVELOPER_ID } from '../constants';
+import type { TicketStatus } from '../types';
 
 type FormState = {
   key: string;
@@ -12,6 +13,7 @@ type FormState = {
   developerId: string;
   sprintId: string;
   jiraUrl: string;
+  status: TicketStatus;
 };
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
@@ -44,6 +46,7 @@ export function AddTicketForm() {
         UNASSIGNED_DEVELOPER_ID,
       sprintId: currentSprintId ?? BACKLOG_COLUMN_ID,
       jiraUrl: '',
+      status: 'TO DO',
     }),
     [developers, features, currentSprintId],
   );
@@ -76,7 +79,6 @@ export function AddTicketForm() {
     if (!form.sprintId) nextErrors.sprintId = 'Sprint is required.';
     if (trimmedUrl) {
       try {
-        // eslint-disable-next-line no-new
         new URL(trimmedUrl);
       } catch {
         nextErrors.jiraUrl = 'Enter a valid URL (include https://).';
@@ -98,6 +100,7 @@ export function AddTicketForm() {
       featureId: form.featureId,
       sprintIds: [form.sprintId],
       jiraUrl: trimmedUrl || undefined,
+      status: form.status,
     });
 
     announce(
@@ -109,13 +112,23 @@ export function AddTicketForm() {
       featureId: form.featureId,
       sprintId: form.sprintId,
       jiraUrl: '',
+      status: 'TO DO',
     });
   };
+
+  const statusOptions: TicketStatus[] = [
+    'TO DO',
+    'IN PROGRESS',
+    'READY FOR TEST',
+    'IN TEST',
+    'PO REVIEW',
+    'DONE',
+  ];
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-4 rounded-lg border border-slate-200 bg-white/80 p-4 shadow-sm lg:grid-cols-6"
+      className="grid gap-4 rounded-lg border border-slate-200 bg-white/80 p-4 shadow-sm lg:grid-cols-7"
     >
       <Field
         label="Jira Issue #"
@@ -237,6 +250,25 @@ export function AddTicketForm() {
             <option key={sprint.id} value={sprint.id}>
               {sprint.name}
               {currentSprintId === sprint.id ? ' (Current)' : ''}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field
+        label="Status"
+        htmlFor="status"
+      >
+        <select
+          id="status"
+          name="status"
+          value={form.status}
+          onChange={(event) => handleChange('status', event.target.value as TicketStatus)}
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        >
+          {statusOptions.map((status) => (
+            <option key={status} value={status}>
+              {status}
             </option>
           ))}
         </select>

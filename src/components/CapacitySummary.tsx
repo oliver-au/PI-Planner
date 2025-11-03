@@ -3,10 +3,11 @@ import { usePiStore } from '../store/piStore';
 import { useShallow } from 'zustand/react/shallow';
 
 export function CapacitySummary() {
-  const { developers, sprints, getCapacityBy, announce, currentSprintId } = usePiStore(
+  const { developers, sprints, tickets, getCapacityBy, announce, currentSprintId } = usePiStore(
     useShallow((state) => ({
       developers: state.developers,
       sprints: state.sprints,
+      tickets: state.tickets,
       getCapacityBy: state.getCapacityBy,
       announce: state.announce,
       currentSprintId: state.currentSprintId,
@@ -25,7 +26,7 @@ export function CapacitySummary() {
           ...getCapacityBy(developer.id, sprint.id),
         })),
       ),
-    [developers, orderedSprints, getCapacityBy],
+    [developers, orderedSprints, getCapacityBy, tickets],
   );
 
   const overCapacitySummary = useMemo(() => {
